@@ -20,18 +20,27 @@ const Dashboard=()=>{
 
     useEffect(()=>{
         const fetch=async()=>{
-        const res=await getAllTransaction(groupId)
-        const transactionRes=res.data
-        setTransactions(transactionRes)
-        let expenseSum=0
-        let incomeSum=0
-        transactionRes.map(transaction=>{
-            if(transaction.type==='expense') {expenseSum=expenseSum+transaction.amount}
-            if(transaction.type==='income') {incomeSum=incomeSum+transaction.amount}
-        })
-        setExpense(expenseSum)
-        setIncome(incomeSum)
-        setNet(expenseSum+incomeSum)
+            try{
+                const res=await getAllTransaction(groupId)
+                const transactionRes=res.data
+                setTransactions(transactionRes)
+                let expenseSum=0
+                let incomeSum=0
+                transactionRes.map(transaction=>{
+                    if(transaction.type==='expense') {expenseSum=expenseSum+transaction.amount}
+                    if(transaction.type==='income') {incomeSum=incomeSum+transaction.amount}
+                })
+                setExpense(expenseSum)
+                setIncome(incomeSum)
+                setNet(expenseSum+incomeSum)
+            }
+            catch(err){
+            if (err.response?.status === 401) {
+                if (!localStorage.getItem("token")) {
+                    navigate("/login")
+                }
+            }
+        }
     }
     fetch()
     },[groupId])
@@ -65,7 +74,11 @@ const Dashboard=()=>{
             setCategory("")
         }
         catch(err){
-            console.log(err);
+            if (err.response?.status === 401) {
+                if (!localStorage.getItem("token")) {
+                    navigate("/login")
+                }
+            }
         }
     }
     return(
